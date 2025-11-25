@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cek Kesehatan Mental – SDG 3</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    :root{
+      --primary:#10b981;   /* hijau utama */
+      --primary-soft:#6ee7b7;
+      --bg:#ecfdf5;
+      --text:#022c22;
+      --heart:#fb7185;     /* pink hati */
+    }
+    body{
+      color:var(--text);
+      background:radial-gradient(circle at top, #bbf7d0 0, #ecfdf5 40%, #d1fae5 100%);
+    }
+    .card{
+      border-radius:1.4rem;
+      box-shadow:0 18px 40px rgba(15, 118, 110, .18);
+    }
+    .badge{
+      border-radius:999px;
+      padding:.125rem .65rem;
+      font-size:.72rem;
+    }
+
+    /* NAVBAR HIGHLIGHT */
+    .nav-link{
+      position:relative;
+      border-radius:999px;
+      padding:0.35rem 0.9rem;
+      transition:background-color .2s ease, color .2s ease, transform .15s ease;
+    }
+    .nav-link:hover{
+      background-color:rgba(16,185,129,.05);
+      transform:translateY(-1px);
+    }
+    .nav-link-active{
+      color:var(--primary);
+      font-weight:600;
+    }
+    #navIndicator{
+      position:absolute;
+      bottom:-4px;
+      height:3px;
+      border-radius:999px;
+      background:linear-gradient(90deg,var(--primary),var(--primary-soft));
+      transition:transform .3s cubic-bezier(.22,.61,.36,1), width .3s cubic-bezier(.22,.61,.36,1), opacity .15s ease-out;
+      opacity:0;
+    }
+
+    /* HERO BACKGROUND DECORATIONS */
+    .gradient-blob{
+      position:absolute;
+      border-radius:999px;
+      filter:blur(40px);
+      opacity:.55;
+      pointer-events:none;
+    }
+    .blob-1{
+      width:220px;height:220px;
+      background:#a7f3d0;
+      top:-60px;right:-20px;
+      animation:floatBlob1 12s ease-in-out infinite alternate;
+    }
+    .blob-2{
+      width:200px;height:200px;
+      background:#f9a8d4;
+      bottom:-60px;left:-40px;
+      animation:floatBlob2 13s ease-in-out infinite alternate;
+    }
+    @keyframes floatBlob1{
+      from{transform:translateY(0) translateX(0);}
+      to{transform:translateY(20px) translateX(-30px);}
+    }
+    @keyframes floatBlob2{
+      from{transform:translateY(0) translateX(0);}
+      to{transform:translateY(-25px) translateX(30px);}
+    }
+
+    /* HEART ILLUSTRATION */
+    .heart-wrapper{
+      position:relative;
+      width:260px;
+      height:260px;
+      margin:auto;
+    }
+    .heart-bg{
+      position:absolute;
+      inset:0;
+      border-radius:999px;
+      background:radial-gradient(circle at 30% 20%,rgba(16,185,129,.15),transparent 55%),
+                 radial-gradient(circle at 70% 80%,rgba(248,113,113,.18),transparent 60%);
+      box-shadow:0 20px 40px rgba(15,118,110,.35);
+      backdrop-filter:blur(16px);
+    }
+    .heart-main{
+      position:absolute;
+      inset:34px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .heart-svg{
+      width:140px;
+      filter:drop-shadow(0 12px 22px rgba(190,24,93,.55));
+      animation:heartbeat 1.65s ease-in-out infinite;
+    }
+    @keyframes heartbeat{
+      0%  {transform:scale(1);}
+      15% {transform:scale(1.12);}
+      30% {transform:scale(0.98);}
+      45% {transform:scale(1.08);}
+      60% {transform:scale(1);}
+      100%{transform:scale(1);}
+    }
+    .heart-particle{
+      position:absolute;
+      width:11px;height:11px;
+      border-radius:999px;
+      background:rgba(16,185,129,.8);
+      opacity:0;
+      animation:heartParticle 4s linear infinite;
+    }
+    .heart-particle:nth-child(1){top:40%;left:-4px;animation-delay:.4s;}
+    .heart-particle:nth-child(2){top:14%;right:18px;animation-delay:1s;}
+    .heart-particle:nth-child(3){bottom:16%;left:26px;animation-delay:1.8s;}
+    .heart-particle:nth-child(4){bottom:6%;right:12px;animation-delay:2.4s;}
+
+    @keyframes heartParticle{
+      0%{opacity:0;transform:translateY(6px) scale(.2);}
+      25%{opacity:1;transform:translateY(-10px) scale(.9);}
+      70%{opacity:1;transform:translateY(-30px) scale(1);}
+      100%{opacity:0;transform:translateY(-45px) scale(.4);}
+    }
+
+    /* SECTION TRANSITION */
+    .page-section{
+      opacity:0;
+      transform:translateY(8px);
+      transition:opacity .28s ease, transform .28s ease;
+    }
+    .page-section.active{
+      opacity:1;
+      transform:translateY(0);
+    }
+
+    /* BUTTONS */
+    .btn-main{
+      border-radius:999px;
+      padding:0.7rem 1.5rem;
+      font-weight:600;
+      display:inline-flex;
+      align-items:center;
+      gap:.35rem;
+      box-shadow:0 12px 30px rgba(16,185,129,.45);
+      transition:transform .18s ease, box-shadow .18s ease, filter .18s ease;
+    }
+    .btn-main:hover{
+      transform:translateY(-1px);
+      box-shadow:0 18px 38px rgba(16,185,129,.6);
+      filter:brightness(1.04);
+    }
+    .btn-main:active{
+      transform:translateY(0);
+      box-shadow:0 10px 24px rgba(16,185,129,.75);
+      filter:brightness(.98);
+    }
+  </style>
+</head>
+<body class="min-h-screen">
+
+  <header class="sticky top-0 z-40 bg-white/80 backdrop-blur border-b border-emerald-100">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <div class="w-6 h-6 rounded-full bg-gradient-to-br from-emerald-400 via-emerald-500 to-emerald-700 flex items-center justify-center text-xs text-white shadow-md">
+          ♥
+        </div>
+        <span class="font-semibold tracking-tight text-sm sm:text-base">
+          SDG 3 – Good Health &amp; Well-Being
+        </span>
+      </div>
+
+      <nav id="mainNav" class="relative flex gap-2 text-sm sm:text-[0.92rem]">
+        <span id="navIndicator"></span>
+        <button class="nav-link" data-nav="home">Home</button>
+        <button class="nav-link" data-nav="test">Tes</button>
+        <button class="nav-link" data-nav="history">Riwayat</button>
+        <button class="nav-link" data-nav="about">Tentang</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-4 py-10 space-y-14 relative">
+    <div class="gradient-blob blob-1"></div>
+    <div class="gradient-blob blob-2"></div>
+
+    <section id="homeSection" class="page-section active space-y-10 relative">
+      <div class="grid md:grid-cols-2 items-center gap-10">
+        <div class="space-y-6">
+          <div class="inline-flex items-center gap-2 text-xs font-medium bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full border border-emerald-100 shadow-sm">
+            <span class="text-[0.8rem]">💚</span> Mental Health Check-in · 3 menit
+          </div>
+          <h1 class="text-3xl md:text-4xl font-extrabold leading-tight text-emerald-950">
+            Jaga <span class="text-[var(--heart)]">hatimu</span>, jaga <span class="text-emerald-600">kesehatan mentalmu.</span>
+          </h1>
+          <p class="text-sm sm:text-base text-emerald-900/80 leading-relaxed">
+            Tes singkat ini membantumu berhenti sejenak, mengamati apa yang kamu rasakan, dan
+            mendapatkan saran ringan. Anonim, gratis, dan mendukung tujuan
+            <span class="font-semibold">SDG 3: Good Health &amp; Well-Being</span>.
+          </p>
+
+          <div class="flex flex-wrap gap-3">
+            <button
+              data-nav="test"
+              class="btn-main bg-gradient-to-br from-emerald-500 to-emerald-600 text-white"
+            >
+              <span>Mulai Tes Sekarang</span>
+              <span>➜</span>
+            </button>
+            <button
+              data-nav="about"
+              class="btn-main bg-white text-emerald-800 border border-emerald-100 shadow-sm"
+            >
+              Pelajari SDG&nbsp;3
+            </button>
+          </div>
+
+          <div class="flex items-center gap-3 text-xs sm:text-sm text-emerald-900/80">
+            <span class="badge bg-emerald-100 text-emerald-800 border border-emerald-200">Edukasi</span>
+            <span class="badge bg-rose-100 text-rose-700 border border-rose-200 flex items-center gap-1">
+              <span>♥</span> Peduli diri
+            </span>
+            <span class="badge bg-sky-100 text-sky-800 border border-sky-200">Anonim &amp; Gratis</span>
+          </div>
+        </div>
+
+        <div class="relative">
+          <div class="heart-wrapper">
+            <div class="heart-bg"></div>
+            <div class="heart-main">
+              <svg class="heart-svg" viewBox="0 0 120 110">
+                <defs>
+                  <linearGradient id="heartGradient" x1="0" x2="1" y1="0" y2="1">
+                    <stop offset="0" stop-color="#fb7185"/>
+                    <stop offset="1" stop-color="#f97316"/>
+                  </linearGradient>
+                </defs>
+                <path
+                  d="M60 100C60 100 12 72 12 40C12 24 24 12 40 12C50 12 57 18 60 24C63 18 70 12 80 12C96 12 108 24 108 40C108 72 60 100 60 100Z"
+                  fill="url(#heartGradient)"
+                  stroke="#fecaca"
+                  stroke-width="3"
+                  stroke-linejoin="round"
+                />
+                <path
+                  d="M46 30C42 26 36 26 32 30"
+                  stroke="#fee2e2"
+                  stroke-width="3"
+                  stroke-linecap="round"
+                />
+              </svg>
+            </div>
+
+            <span class="heart-particle"></span>
+            <span class="heart-particle"></span>
+            <span class="heart-particle"></span>
+            <span class="heart-particle"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-6">
+        <div class="card bg-white/90 border border-emerald-100 p-6 relative overflow-hidden">
+          <div class="absolute -right-3 -top-3 text-2xl opacity-10">①</div>
+          <h3 class="font-semibold mb-1 text-emerald-900">Deskripsi</h3>
+          <p class="text-sm text-emerald-900/80">
+            Kuesioner singkat (10 item) skala 0–3 untuk refleksi diri sehari-hari. Bukan alat diagnosis medis,
+            tapi pintu awal untuk lebih sadar pada kondisi emosionalmu.
+          </p>
+        </div>
+        <div class="card bg-white/90 border border-emerald-100 p-6 relative overflow-hidden">
+          <div class="absolute -right-3 -top-3 text-2xl opacity-10">②</div>
+          <h3 class="font-semibold mb-1 text-emerald-900">Cara Kerja</h3>
+          <p class="text-sm text-emerald-900/80">
+            Jawab setiap pernyataan sesuai kondisi sepekan terakhir. Sistem akan menghitung skor total,
+            mengelompokkan dalam kategori, dan memberi saran singkat.
+          </p>
+        </div>
+        <div class="card bg-white/90 border border-emerald-100 p-6 relative overflow-hidden">
+          <div class="absolute -right-3 -top-3 text-2xl opacity-10">③</div>
+          <h3 class="font-semibold mb-1 text-emerald-900">Privasi</h3>
+          <p class="text-sm text-emerald-900/80">
+            Data tes disimpan hanya di perambanmu (LocalStorage). Kamu bisa menghapus semua riwayat kapan saja
+            dari menu <span class="font-semibold">Riwayat</span>.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section id="testSection" class="page-section hidden max-w-3xl mx-auto">
+      <div class="card bg-white/95 border border-emerald-100 p-6 md:p-8 space-y-6 relative overflow-hidden">
+        <div class="absolute -right-16 -top-10 w-44 h-44 bg-emerald-100 rounded-full opacity-40 blur-3xl"></div>
+        <div class="flex items-center justify-between relative z-10">
+          <div>
+            <h2 class="text-xl font-semibold text-emerald-950 flex items-center gap-2">
+              <span>Tes Kesehatan Mental</span>
+              <span class="text-rose-500 text-lg">♥</span>
+            </h2>
+            <div class="text-xs text-emerald-900/70 mt-1">
+              Jawab jujur untuk dirimu sendiri. Tidak ada jawaban benar atau salah.
+            </div>
+          </div>
+          <div class="text-xs text-emerald-900/70">
+            Pertanyaan <span id="stepText">1</span>/10
+          </div>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-4 relative z-10">
+          <div>
+            <label class="text-sm text-emerald-900/90">Nama (opsional)</label>
+            <input
+              id="nameInput"
+              class="mt-1 w-full border border-emerald-100 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300 focus:border-emerald-300 bg-emerald-50/80"
+              placeholder="Nama kamu atau boleh dikosongkan"
+            />
+          </div>
+          <div>
+            <label class="text-sm text-emerald-900/90">Catatan hari ini (opsional)</label>
+            <input
+              id="noteInput"
+              class="mt-1 w-full border border-emerald-100 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300 focus:border-emerald-300 bg-emerald-50/80"
+              placeholder="Perasaan singkat hari ini"
+            />
+          </div>
+        </div>
+
+        <div class="w-full h-1.5 bg-emerald-50 rounded-full overflow-hidden relative z-10">
+          <div id="progress" class="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 w-0 transition-all duration-300 ease-out"></div>
+        </div>
+
+        <div id="questionCard" class="space-y-4 relative z-10">
+          <p id="questionText" class="text-lg font-medium text-emerald-950"></p>
+          <div class="grid sm:grid-cols-4 gap-2 text-sm">
+            <label class="flex items-center gap-2 border border-emerald-100 rounded-xl px-3 py-2 cursor-pointer bg-emerald-50/60 hover:border-emerald-300 hover:bg-emerald-50">
+              <input type="radio" name="scale" value="0" class="text-emerald-500" />
+              <span>0 Tidak Pernah</span>
+            </label>
+            <label class="flex items-center gap-2 border border-emerald-100 rounded-xl px-3 py-2 cursor-pointer bg-emerald-50/60 hover:border-emerald-300 hover:bg-emerald-50">
+              <input type="radio" name="scale" value="1" class="text-emerald-500" />
+              <span>1 Jarang</span>
+            </label>
+            <label class="flex items-center gap-2 border border-emerald-100 rounded-xl px-3 py-2 cursor-pointer bg-emerald-50/60 hover:border-emerald-300 hover:bg-emerald-50">
+              <input type="radio" name="scale" value="2" class="text-emerald-500" />
+              <span>2 Sering</span>
+            </label>
+            <label class="flex items-center gap-2 border border-emerald-100 rounded-xl px-3 py-2 cursor-pointer bg-emerald-50/60 hover:border-emerald-300 hover:bg-emerald-50">
+              <input type="radio" name="scale" value="3" class="text-emerald-500" />
+              <span>3 Sangat Sering</span>
+            </label>
+          </div>
+          <p class="text-xs text-emerald-900/70">
+            Tips: nilai berdasarkan kondisi minggu ini, bukan hanya hari ini.
+          </p>
+        </div>
+
+        <div class="flex items-center justify-between pt-2 relative z-10">
+          <button id="prevBtn" class="px-4 py-2 rounded-xl border border-emerald-100 text-sm text-emerald-900/80 bg-white/80 hover:bg-emerald-50">
+            ⬅ Kembali
+          </button>
+          <button id="nextBtn" class="px-4 py-2 rounded-xl text-sm text-white bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-500 shadow-md">
+            Berikutnya ➜
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section id="resultSection" class="page-section hidden max-w-3xl mx-auto">
+      <div class="card bg-white/95 border border-emerald-100 p-6 md:p-8 space-y-6">
+        <div class="flex items-center justify-between gap-3">
+          <h2 class="text-xl font-semibold text-emerald-950 flex items-center gap-2">
+            <span>Hasil Refleksi</span>
+            <span class="text-rose-500 text-lg">♥</span>
+          </h2>
+          <div class="text-xs text-emerald-900/70">Hanya kamu yang bisa melihat hasil ini.</div>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-5">
+          <div class="bg-emerald-50/80 border border-emerald-100 rounded-2xl p-4 space-y-2">
+            <div class="text-xs text-emerald-900/80">Nama</div>
+            <div class="text-sm font-semibold text-emerald-950" id="resName">-</div>
+
+            <div class="mt-3 text-xs text-emerald-900/80">Skor total</div>
+            <div class="text-3xl font-extrabold text-emerald-700">
+              <span id="resScore">0</span>
+              <span class="text-base text-emerald-900/60"> / 30</span>
+            </div>
+
+            <div class="mt-2 text-xs text-emerald-900/80">Kategori</div>
+            <div class="text-sm font-semibold" id="resCategory"></div>
+          </div>
+
+          <div class="bg-white border border-emerald-100 rounded-2xl p-4 space-y-2">
+            <div class="text-xs text-emerald-900/80">Saran</div>
+            <div id="resAdvice" class="text-sm text-emerald-900/90 leading-relaxed"></div>
+            <p class="text-[0.7rem] text-emerald-900/70 border-t border-emerald-100 pt-2">
+              Jika merasa sangat kewalahan (misalnya sulit berfungsi dalam aktivitas sehari-hari, muncul pikiran menyakiti diri, atau distress berkepanjangan),
+              pertimbangkan untuk berkonsultasi dengan profesional kesehatan mental.
+            </p>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap gap-3">
+          <button data-nav="test" id="restartBtn" class="px-4 py-2 rounded-xl border border-emerald-100 text-sm bg-white hover:bg-emerald-50">
+            Ulangi Tes
+          </button>
+          <button data-nav="history" class="px-4 py-2 rounded-xl text-sm text-white bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-500 shadow-md">
+            Lihat Riwayat
+          </button>
+        </div>
+
+        <p class="text-[0.7rem] text-emerald-900/70">
+          Disclaimer: Hasil ini bersifat edukatif dan tidak dapat menggantikan diagnosis atau rekomendasi dari psikolog/psikiater.
+        </p>
+      </div>
+    </section>
+
+    <section id="historySection" class="page-section hidden space-y-6">
+      <div class="grid md:grid-cols-[2fr_1fr] gap-6">
+        <div class="card bg-white/95 border border-emerald-100 p-6">
+          <div class="flex items-center justify-between mb-4 gap-3">
+            <h3 class="font-semibold text-emerald-950 flex items-center gap-2">
+              <span>Riwayat Tes</span>
+              <span class="text-xs text-emerald-900/70">(terbaru di atas)</span>
+            </h3>
+            <div class="flex flex-wrap gap-2">
+              <button id="exportCsv" class="px-3 py-1.5 rounded-xl border border-emerald-100 text-xs bg-white hover:bg-emerald-50">
+                Ekspor CSV
+              </button>
+              <button id="clearAll" class="px-3 py-1.5 rounded-xl border border-rose-200 text-xs text-rose-600 bg-rose-50/70 hover:bg-rose-100">
+                Hapus Semua
+              </button>
+            </div>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="min-w-full text-xs sm:text-sm">
+              <thead class="text-left text-emerald-900/80 bg-emerald-50">
+                <tr>
+                  <th class="py-2 px-2">Tanggal</th>
+                  <th class="py-2 px-2">Nama</th>
+                  <th class="py-2 px-2">Skor</th>
+                  <th class="py-2 px-2">Kategori</th>
+                  <th class="py-2 px-2">Catatan</th>
+                </tr>
+              </thead>
+              <tbody id="historyBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="space-y-6">
+          <div class="card bg-white/95 border border-emerald-100 p-6">
+            <h3 class="font-semibold mb-3 text-emerald-950">Statistik</h3>
+            <ul id="statsList" class="text-sm text-emerald-900/90 space-y-1"></ul>
+          </div>
+          <div class="card bg-white/95 border border-emerald-100 p-6">
+            <h3 class="font-semibold mb-3 text-emerald-950">Tren Skor</h3>
+            <canvas id="trendCanvas" width="400" height="220" class="w-full"></canvas>
+            <p class="text-[0.7rem] text-emerald-900/70 mt-2">
+              Batang hijau menunjukkan skor dari waktu ke waktu (maksimal 10 entri terakhir).
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="aboutSection" class="page-section hidden max-w-3xl mx-auto">
+      <div class="card bg-white/95 border border-emerald-100 p-6 md:p-8 space-y-4">
+        <h2 class="text-xl font-semibold text-emerald-950 flex items-center gap-2">
+          <span>Tentang Proyek &amp; SDG 3</span>
+          <span class="text-rose-500 text-lg">♥</span>
+        </h2>
+        <p class="text-sm sm:text-base text-emerald-900/90 leading-relaxed">
+          Aplikasi ini merupakan pengembangan dari program C++ berbasis terminal yang kemudian diadaptasi ke bentuk web
+          untuk mempermudah akses. Proyek ini mendukung
+          <span class="font-semibold">Sustainable Development Goal (SDG) 3: Good Health and Well-Being</span>,
+          khususnya pada aspek kesehatan mental.
+        </p>
+        <p class="text-sm sm:text-base text-emerald-900/90 leading-relaxed">
+          Meskipun tampilan dan animasinya dibuat menarik dengan nuansa hijau dan ikon hati, tujuan utamanya tetap sama:
+          mengajak kita lebih peka terhadap kondisi batin sendiri, sekaligus mendorong budaya mencari bantuan ketika diperlukan.
+        </p>
+        <p class="text-xs text-emerald-900/70">
+          Catatan: Tidak ada data yang dikirim ke server. Semua riwayat tersimpan lokal di peramban. Jika perangkat berganti
+          atau cache dibersihkan, data riwayat akan hilang.
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="text-center text-[0.7rem] text-emerald-900/80 py-6">
+    © 2025 · Edukatif &amp; non-diagnostik·
+  </footer>
+
+  <script>
+    // URL Backend Flask Anda
+    const API_BASE_URL = 'http://localhost:8080/api';
+
+    // ------------- Router + Nav highlight + section animation -------------
+    const sections = {
+      home: document.getElementById('homeSection'),
+      test: document.getElementById('testSection'),
+      result: document.getElementById('resultSection'),
+      history: document.getElementById('historySection'),
+      about: document.getElementById('aboutSection'),
+    };
+
+    const navButtons = document.querySelectorAll('#mainNav .nav-link');
+    const navIndicator = document.getElementById('navIndicator');
+    const mainNav = document.getElementById('mainNav');
+
+    function moveIndicatorTo(button){
+      if(!button || !navIndicator || !mainNav) return;
+      const navRect = mainNav.getBoundingClientRect();
+      const btnRect = button.getBoundingClientRect();
+      const left = btnRect.left - navRect.left;
+      const width = btnRect.width;
+      navIndicator.style.opacity = 1;
+      navIndicator.style.width = width + 'px';
+      navIndicator.style.transform = `translateX(${left}px)`;
+    }
+
+    function setActiveNav(section){
+      let activeBtn = null;
+      navButtons.forEach(btn=>{
+        const isActive = btn.getAttribute('data-nav') === section;
+        btn.classList.toggle('nav-link-active', isActive);
+        if(isActive) activeBtn = btn;
+      });
+      if(activeBtn) moveIndicatorTo(activeBtn);
+    }
+
+    function show(section){
+      Object.entries(sections).forEach(([key, el])=>{
+        const isActive = key === section;
+        if(isActive){
+          el.classList.remove('hidden');
+          requestAnimationFrame(()=>{
+            el.classList.add('active');
+          });
+        }else{
+          el.classList.remove('active');
+          el.classList.add('hidden');
+        }
+      });
+
+      setActiveNav(section);
+      if(section==='history'){ renderHistory(); } 
+      if(section==='test'){ startTest(); }
+    }
+
+    // apply click handler to all data-nav
+    document.querySelectorAll('[data-nav]').forEach(btn=>{
+      btn.addEventListener('click',()=> show(btn.getAttribute('data-nav')));
+    });
+
+    window.addEventListener('resize', ()=>{
+      const current = document.querySelector('#mainNav .nav-link.nav-link-active');
+      if(current) moveIndicatorTo(current);
+    });
+
+    // -------------------- Questions --------------------
+    const questions = [
+      { text: 'Saya sulit fokus saat belajar.', reverse:false },
+      { text: 'Saya merasa cemas tanpa alasan jelas.', reverse:false },
+      { text: 'Saya mudah tersinggung akhir-akhir ini.', reverse:false },
+      { text: 'Saya kesulitan tidur nyenyak.', reverse:false },
+      { text: 'Saya merasa bersemangat mengerjakan aktivitas harian.', reverse:true },
+      { text: 'Saya kehilangan minat pada hal yang biasanya saya sukai.', reverse:false },
+      { text: 'Saya merasa lelah secara emosional.', reverse:false },
+      { text: 'Saya mudah panik dalam situasi kecil.', reverse:false },
+      { text: 'Saya mampu mengelola stres dengan baik.', reverse:true },
+      { text: 'Saya merasa sendirian/terisolasi.', reverse:false }
+    ];
+
+    let step=0, answers=Array(questions.length).fill(null);
+
+    const stepText = document.getElementById('stepText');
+    const questionText = document.getElementById('questionText');
+    const progressEl = document.getElementById('progress');
+    const nameInput = document.getElementById('nameInput');
+    const noteInput = document.getElementById('noteInput');
+
+    function startTest(){
+      step = 0;
+      answers = Array(questions.length).fill(null);
+      renderStep();
+    }
+
+    function renderStep(){
+      stepText.textContent = (step+1);
+      questionText.textContent = `(${step+1}). ${questions[step].text}`;
+      progressEl.style.width = ((step)/(questions.length-1))*100 + '%';
+      const radios = document.querySelectorAll('input[name="scale"]');
+      radios.forEach(r=>{
+        r.checked = (answers[step]!==null && +r.value===answers[step]);
+      });
+    }
+
+    function getSelected(){
+      const r = document.querySelector('input[name="scale"]:checked');
+      return r? +r.value : null;
+    }
+
+    document.getElementById('prevBtn').addEventListener('click', ()=>{
+      if(step>0){ step--; renderStep(); }
+    });
+
+    document.getElementById('nextBtn').addEventListener('click', ()=>{
+      const sel = getSelected();
+      if(sel===null){ alert('Pilih nilai 0–3 dulu ya.'); return; }
+      answers[step]=sel;
+      if(step < questions.length-1){ step++; renderStep(); }
+      else finishTest();
+    });
+    
+    // Fungsi ini MENGIRIM DATA ke Backend (Python/C++)
+    async function finishTest(){
+      const API_URL = API_BASE_URL + '/save'; 
+      
+      if(answers.some(a => a===null)){
+        alert('Jawab semua pertanyaan dulu ya.');
+        return;
+      }
+      
+      // Siapkan payload untuk backend (Python/C++)
+      const payload = { 
+        answers: answers, 
+        name: nameInput.value.trim(), 
+        note: noteInput.value.trim() 
+      };
+
+      try{
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        
+        const result = await response.json(); 
+
+        if(!response.ok || result.status !== "success"){
+          const errorMsg = result.error || 'Gagal terhubung atau kesalahan backend.';
+          throw new Error(errorMsg);
+        }
+
+        // Tampilkan hasil menggunakan data yang dikembalikan dari backend
+        document.getElementById('resName').textContent = payload.name || '-';
+        document.getElementById('resScore').textContent = result.total_score;
+        const catEl = document.getElementById('resCategory');
+        catEl.textContent = result.category;
+        catEl.style.color = result.color; 
+        document.getElementById('resAdvice').textContent = result.advice;
+
+        // Data sudah tersimpan di database SQLite oleh backend. 
+        show('result');
+
+      } catch(error){
+        console.error('Fetch Error:', error);
+        alert('Terjadi kesalahan saat menyimpan/menghitung skor: Failed to fetch. Pastikan server Python berjalan.');
+      }
+    }
+
+
+    document.getElementById('restartBtn')?.addEventListener('click', ()=>{
+      show('test');
+    });
+
+    // -------------------- History & Stats (Ambil dari API) --------------------
+    
+    // Fungsi baru untuk mengambil data dari Backend API
+    async function getHistory(){
+      const API_URL = API_BASE_URL + '/history';
+      try{
+        const response = await fetch(API_URL);
+        if(!response.ok) throw new Error('Gagal mengambil data riwayat dari backend.');
+        
+        return await response.json(); 
+      }catch(error){
+        console.error("Error fetching history:", error);
+        alert("Gagal memuat riwayat dari database. Pastikan server Python berjalan.");
+        return []; 
+      }
+    }
+
+
+    async function renderHistory(){
+      // Mengambil data dari Backend Flask
+      const rows = await getHistory(); 
+
+      const body = document.getElementById('historyBody');
+      body.innerHTML='';
+      
+      if(!rows.length){
+        body.innerHTML = '<tr><td class="py-3 px-2 text-emerald-900/60" colspan="5">Belum ada data di database. Lakukan tes terlebih dahulu.</td></tr>';
+        renderStats(rows);
+        drawTrend(rows);
+        return;
+      }
+      
+      for(const r of rows){
+        const tr = document.createElement('tr');
+        tr.className = "border-t border-emerald-50/80";
+        tr.innerHTML = `<td class='py-1.5 px-2 whitespace-nowrap'>${r.timestamp}</td>
+                        <td class='py-1.5 px-2'>${r.name||'-'}</td>
+                        <td class='py-1.5 px-2 font-semibold text-emerald-700'>${r.total}</td>
+                        <td class='py-1.5 px-2'>${r.category}</td>
+                        <td class='py-1.5 px-2'>${r.note||''}</td>`;
+        body.appendChild(tr);
+      }
+
+      renderStats(rows);
+      drawTrend(rows);
+    }
+
+    function renderStats(rows){
+      const ul = document.getElementById('statsList');
+      ul.innerHTML='';
+      if(!rows.length){
+        ul.innerHTML='<li>Belum ada data. Lakukan tes minimal sekali.</li>';
+        return;
+      }
+      const scores = rows.map(r=>r.total);
+      const n = scores.length;
+      const sum = scores.reduce((a,b)=>a+b,0);
+      const mn = Math.min(...scores);
+      const mx = Math.max(...scores);
+      const avg = (sum/n).toFixed(2);
+      ul.innerHTML = `<li>Jumlah entri: <b>${n}</b></li>
+                      <li>Skor minimum: <b>${mn}</b></li>
+                      <li>Skor maksimum: <b>${mx}</b></li>
+                      <li>Rata-rata: <b>${avg}</b></li>`;
+    }
+
+    function drawTrend(rows){
+      const canvas = document.getElementById('trendCanvas');
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      
+      if(!rows.length){
+        ctx.fillStyle='#4b5563';
+        ctx.font='12px system-ui';
+        ctx.fillText('Belum ada data untuk digambarkan.', 10, 20);
+        return;
+      }
+
+      const rowsToShow = rows.slice().reverse().slice(-10); // Ambil 10 data terakhir
+      
+      const w = canvas.width, h = canvas.height;
+      const pad = 30, barGap = 8;
+      const n = rowsToShow.length;
+      const barW = (w - pad*2 - (n-1)*barGap)/n;
+
+      ctx.strokeStyle = '#d1fae5';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(pad, pad);
+      ctx.lineTo(pad, h-pad);
+      ctx.lineTo(w-pad, h-pad);
+      ctx.stroke();
+
+      ctx.fillStyle = '#6b7280';
+      ctx.font = '11px system-ui';
+      ctx.fillText('30', 6, pad+4);
+      ctx.fillText('0', 12, h-pad+11);
+
+      rowsToShow.forEach((r,i)=>{
+        const x = pad + i*(barW+barGap);
+        const barH = (r.total/30)*(h - pad*2);
+        ctx.fillStyle = r.total<=9 ? '#22c55e' : (r.total<=19 ? '#fbbf24' : '#f97373');
+        ctx.beginPath();
+        ctx.roundRect(x, h-pad-barH, barW, barH, 4);
+        ctx.fill();
+      });
+    }
+
+    // HANDLER BARU untuk Ekspor CSV (Mengunduh file dari Backend)
+    document.getElementById('exportCsv').addEventListener('click', ()=>{
+      // Memanggil API GET yang mengirimkan file CSV
+      window.location.href = API_BASE_URL + '/export_csv';
+    });
+
+    // HANDLER BARU untuk Hapus Semua (Mengirim permintaan DELETE ke Backend)
+    document.getElementById('clearAll').addEventListener('click', async ()=>{
+      if(!confirm('Anda yakin ingin MENGHAPUS SEMUA riwayat data di database? Tindakan ini tidak dapat dibatalkan.')){
+        return;
+      }
+      
+      const API_URL = API_BASE_URL + '/clear_history';
+      
+      try {
+        const response = await fetch(API_URL, {
+          method: 'DELETE',
+        });
+
+        const result = await response.json();
+        
+        if(!response.ok || result.status !== 'success'){
+          throw new Error(result.error || 'Gagal menghapus riwayat.');
+        }
+
+        alert(result.message);
+        // Refresh halaman riwayat setelah penghapusan
+        show('history');
+
+      } catch (error) {
+        console.error('Delete Error:', error);
+        alert('Terjadi kesalahan saat menghapus data: ' + error.message);
+      }
+    });
+    
+    // Initial
+    show('home');
+  </script>
+</body>
+</html>
